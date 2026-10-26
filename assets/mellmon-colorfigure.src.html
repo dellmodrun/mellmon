@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mellmon capability console</title><link rel="icon" href="data:,"></head><body>
+<script src="core.js"></script>
+<script>
+/*
+  MELLMON CAPABILITY CONSOLE
+  A secure bench machine turns one narrowly scoped capability into one accountable execution.
+
+  Real process:
+  1. A versioned capability cartridge enters the reader.
+  2. A mechanical governor limits the authorized budget.
+  3. The policy drum closes the execution relay only while the installation is valid.
+  4. The operator runs the task; the internal board records input, output and cost.
+  5. The receipt printer emits the permanent record and the three settlement rails divide value.
+
+  Parts:
+  CASE: base board, four feet, rounded shell, front bezel, rear service panel, side vents, top handle, corner screws.
+  CONTROL: status screen, cartridge slot, cartridge, budget dial, run button, progress lamps, receipt mouth.
+  MECHANISM: policy drum, axle, governor gear, detent wheel, five capability cards, card guides, execution board,
+  relay, clock, receipt roll, two feed rollers, print head, paper guide, three settlement rails, terminal block.
+  POWER: supply, fuse, ground strap, input loom, output loom, status beacon and eight board standoffs.
+*/
+const mfW=72,mfD=112,mfH=94;
+const mfOut=rrUV(0,0,mfD,mfH,9);
+const mfBounds=[-8,mfW+29,-8,mfD+8,0,mfH+18];
+const mfPink={l:'#ff6ca8',m:'#ff0878',d:'#70113b'};
+const mfCyan={l:'#81f4ff',m:'#00d7ed',d:'#07515a'};
+const mfViolet={l:'#8a70ff',m:'#4a00ff',d:'#241070'};
+const mfOrange={l:'#ffad74',m:'#ff7426',d:'#763518'};
+const mfPaper={l:'#fffdf3',m:'#eee9d8',d:'#bbb3a0'};
+const mfBoard={l:'#627a73',m:'#36574f',d:'#17332d'};
+const mfFL=(u,v,dx=.25)=>[mfW+dx,mfD-u,mfH-v];
+const mfLoc=(pts,dx=.25)=>pts.map(([u,v])=>mfFL(u,v,dx));
+const mfRR=(u,v,w,h,r=0,dx=.25)=>mfLoc(r?rrUV(u,v,u+w,v+h,Math.min(r,w/2,h/2),4):rectUV(u,v,u+w,v+h),dx);
+const mfCirc=(u,v,r,dx=.3)=>mfLoc(ellUV(u,v,r,r,18),dx);
+const mfTxt=(u,v,s,n,c=INK)=>tx(mfW+.36,mfD-u,mfH-v,s,n,c,800);
+const mfBoxOf=(pts,e=.6)=>[[0,1,2].map(i=>Math.min(...pts.map(p=>p[i]))-e),[0,1,2].map(i=>Math.max(...pts.map(p=>p[i]))+e)];
+const mfWire=(pts,col,w=.7)=>{const d=pd(pts,false);return '<path d="'+d+'" fill="none" stroke="'+INK+'" stroke-width="'+(w*2+1.1)+'" stroke-linecap="round" stroke-linejoin="round"/><path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+(w*2)+'" stroke-linecap="round" stroke-linejoin="round"/>';};
+const mfBudget={low:250,standard:750,high:2000};
+
+function mfMechanism(st){
+  const p=[],put=(b,svg)=>p.push({box:b,svg}),bx=(a,b,c,d,e,g,m,w=.8)=>put([[a,b,c],[d,e,g]],box(a,b,c,d,e,g,m,toneI,w));
+  const vc=(x,y,z0,z1,r,m,w=.7,n=18)=>put([[x-r,y-r,z0],[x+r,y+r,z1]],cyl(x,y,z0,z1,r,m,toneI,w,n));
+  const xc=(x0,x1,y,z,r,m,w=.7,n=18)=>put([[x0,y-r,z-r],[x1,y+r,z+r]],cylX(x0,x1,y,z,r,m,toneI,w,n));
+  // chassis, supports and power
+  bx(8,8,5,64,104,8,DARK,.8);
+  for(const [x,y] of [[12,14],[12,98],[60,14],[60,98],[25,30],[25,82],[50,30],[50,82]]) vc(x,y,8,12,1.1,METAL,.5,12);
+  bx(8,9,10,24,28,27,mfOrange,.8); bx(11,13,27,21,24,31,DARK,.6);
+  bx(27,12,11,63,55,14,mfBoard,.8);
+  // execution board: cards, guides, relay, clock and terminal block
+  for(let j=0;j<5;j++){
+    const y=18+j*8.2;
+    bx(31,y,15,56,y+4.2,39,j===2&&st.running?mfPink:mfBoard,.65);
+    for(let k=0;k<4;k++) vc(36+k*5.2,y+2.1,39,40.2,.75,j===2&&st.running?mfCyan:METAL,.35,10);
+  }
+  bx(28,15,14,30,57,42,METAL,.55); bx(57,15,14,59,57,42,METAL,.55);
+  bx(33,62,14,47,75,25,DARK,.7); bx(49,62,14,61,75,25,mfCyan,.7);
+  xc(34,45,88,20,5.2,mfPaper,.7); xc(47,58,88,20,5.2,METAL,.7);
+  // policy drum, axle and governor wheel
+  xc(16,53,86,58,12,mfViolet,1,28); xc(10,59,86,58,2.2,METAL,.55,14);
+  xc(18,25,86,58,15,mfPink,.8,20); xc(44,51,86,58,15,mfCyan,.8,20);
+  for(let a=0;a<12;a++){const t=a*Math.PI/6,y=86+17*Math.cos(t),z=58+17*Math.sin(t);vc(21.5,y,z-.7,z+.7,1,mfOrange,.35,10)}
+  // receipt system: roll, feed rollers, print head and guide
+  xc(17,48,89,78,10,mfPaper,.9,28); xc(12,53,89,78,3,DARK,.6,16);
+  xc(50,59,82,70,3.2,METAL,.6,16); xc(50,59,93,70,3.2,METAL,.6,16);
+  bx(54,80,61,63,95,67,mfPink,.7); bx(60,79,57,65,96,61,METAL,.55);
+  // three settlement rails and route gates
+  for(const [y,m] of [[68,mfOrange],[78,mfPink],[88,mfCyan]]){
+    put([[9,y-1,42],[62,y+1,45]],rod([10,y,43],[62,y,43],1,m,toneI,.55,1,12));
+    bx(38,y-3,40,44,y+3,47,m,.55);
+  }
+  // looms run port to port along the chassis
+  const wires=[
+    {q:[[21,24,27],[21,24,34],[28,24,34]],c:'#ff7426'},
+    {q:[[30,50,13],[30,60,13],[39,60,40],[39,68,43]],c:'#ff0878'},
+    {q:[[50,55,13],[50,58,32],[50,78,43]],c:'#4a00ff'},
+    {q:[[59,52,20],[63,52,20],[63,88,57]],c:'#00d7ed'},
+    {q:[[24,86,58],[30,86,58],[30,57,42]],c:'#095cff'}
+  ];
+  for(const w of wires)put(mfBoxOf(w.q),mfWire(w.q,w.c,.55));
+  // status beacon and ground strap
+  vc(17,15,31,42,2.1,METAL,.55,16); vc(17,15,42,47,4.2,st.running?mfCyan:mfPaper,.75,20);
+  put(mfBoxOf([[10,12,10],[8,12,4],[6,20,4]]),mfWire([[10,12,10],[8,12,4],[6,20,4]],'#e6c24f',.5));
+  return byDepth(p);
+}
+
+function mfScene(st,m){
+  const front=facing([1,0,0]),back=facing([-1,0,0]),left=facing([0,1,0]),top=facing([0,0,1]);
+  let out=board(-8,-8,mfW+29,mfD+8,3,5,mfPaper);
+  out+=castShadow([...on(PX(0),mfOut),...on(PX(mfW),mfOut)]);
+  // floor board and feet
+  for(const [x,y] of [[7,12],[7,100],[65,12],[65,100]])out+=cyl(x,y,3,7,3,DARK,toneI,.8,16);
+  let body=extrude(mfOut,0,mfW,m);
+  if(front){
+    body+=fill(pd(on(PX(mfW),mfOut)),tone([1,0,0],m));
+    // screen and its live progress line
+    body+=shape(mfRR(13,12,86,24,5),DARK.m,1.1);
+    body+=mfTxt(22,22,'MELLMON / S0',6.2,st.running?'#81f4ff':'#fff4d6');
+    body+=mfTxt(22,30,st.running?'EXECUTING '+Math.round(st.progress*100)+'%':st.receipt?'RECEIPT SEALED':'CAPABILITY READY',3.7,st.running?'#81f4ff':'#ff6ca8');
+    const bar=Math.max(2,70*(st.running?st.progress:st.receipt?1:0));
+    body+=fill(pd(mfRR(21,33,bar,2,1,.34)),st.running?'#00d7ed':'#ff0878');
+    // cartridge slot and loaded cartridge
+    body+=shape(mfRR(16,43,79,13,4),DARK.d,1.1)+mfTxt(55,51,'CHIP',3.2,'#fff4d6');
+    // budget dial, run button and lamps
+    body+=shape(mfCirc(29,72,10),mfPaper.m,1)+shape(mfCirc(29,72,6),mfOrange.m,.8);
+    const ang={low:-.8,standard:0,high:.8}[st.budget];
+    body+=ink(pd([mfFL(29,72,.38),mfFL(29-5*Math.sin(ang),72-5*Math.cos(ang),.38)],false),1.2);
+    body+=mfTxt(29,87,'BUDGET',3,'#231e16');
+    body+=act('run',shape(mfCirc(57,72,9),st.running?mfCyan.m:mfPink.m,1.2))+mfTxt(57,74,'RUN',3.5,'#fff');
+    for(let j=0;j<8;j++)body+=fill(pd(mfCirc(17+j*9.2,93,1.7,.36)),j<Math.round(st.progress*8)?'#00d7ed':'#4a3b48');
+    body+=shape(mfRR(71,65,25,8,2),DARK.d,1)+mfTxt(83,86,'RECEIPT',2.8,'#fff4d6');
+  }
+  if(back){
+    body+=fill(pd(on(PX(0),mfOut)),tone([-1,0,0],m));
+    body+=shape(on(PX(-.2),rrUV(22,20,88,67,5)),'#eee9d8',1);
+    for(let z=30;z<58;z+=7)body+=line([[ -.3,30,z],[-.3,80,z]],.7);
+  }
+  if(left){
+    for(let z=26;z<74;z+=8)body+=line([[18,mfD+.25,z],[52,mfD+.25,z]],.75);
+    body+=txY(35,mfD+.3,19,'CAPABILITY CONSOLE',3.4,tone([0,1,0],m),800);
+  }
+  if(top){
+    body+=box(18,38,mfH,54,74,mfH+4,DARK,toneI,.8);
+    body+=rod([23,43,mfH+4],[23,69,mfH+15],2.2,METAL,toneI,.8,2.2,16);
+    body+=rod([49,43,mfH+4],[49,69,mfH+15],2.2,METAL,toneI,.8,2.2,16);
+    body+=rod([23,69,mfH+15],[49,69,mfH+15],2.2,METAL,toneI,.8,2.2,16);
+  }
+  body+=hullInk([...on(PX(0),mfOut),...on(PX(mfW),mfOut)],2.8);
+  // cartridge exists as a real solid outside the shell
+  const cx=st.chip?mfW+1:mfW+15;
+  let cartridge=box(cx,mfD-82,39,cx+14,mfD-24,49,mfViolet,toneI,1);
+  cartridge+=box(cx+14,mfD-69,41,cx+18,mfD-37,47,mfPink,toneI,.8);
+  cartridge=act('chip',cartridge);
+  // printed receipt emerges only after settlement
+  let paper='';
+  if(st.receipt){
+    paper=box(mfW+1,mfD-94,18,mfW+20,mfD-70,20,mfPaper,toneI,.8);
+    if(front)paper+=tx(mfW+20.1,mfD-82,19.7,'SETTLED',2.5,'#231e16',800);
+  }
+  const k=ease(st.xr||0),mech=k>0?'<g opacity="'+k+'">'+mfMechanism(st)+'</g>':'';
+  if(k>0)body=xrGhost(body,mech,k,mfOut,0,mfW,m);
+  out+=body+cartridge+paper;
+  if(k>.6)out+=xrCallouts([
+    {at:[35,86,58],text:'POLICY DRUM',on:st.running},
+    {at:[43,42,31],text:'CAPABILITY CARDS',on:st.chip},
+    {at:[40,69,43],text:'BUDGET GOVERNOR',on:st.running},
+    {at:[55,87,70],text:'RECEIPT PRINTER',on:st.receipt},
+    {at:[40,78,43],text:'SETTLEMENT RAILS',on:st.receipt},
+    {at:[17,18,25],text:'POWER SUPPLY',on:st.running},
+    {at:[52,69,20],text:'EXECUTION RELAY',on:st.running}
+  ],mfBounds);
+  else if(front)out+=xrCallouts([
+    {at:[mfW+9,mfD-53,45],text:'CHIP CARTRIDGE',on:st.chip},
+    {at:[mfW, mfD-29,22],text:'BUDGET DIAL',on:false},
+    {at:[mfW, mfD-57,22],text:'EXECUTE',on:st.running},
+    {at:[mfW+10,mfD-82,19],text:'RECEIPT',on:st.receipt}
+  ],mfBounds);
+  return out;
+}
+
+function mfToggleChip(st,ui){
+  if(st.running){ui.flash('Execution is locked');return}
+  st.chip=!st.chip;if(!st.chip){st.progress=0;st.receipt=false}ui.render();
+}
+function mfRun(st,ui){
+  if(st.running)return;
+  if(!st.chip){ui.flash('Insert the capability first');return}
+  st.running=true;st.receipt=false;st.progress=0;ui.render();
+  ui.animate(dt=>{st.progress=Math.min(1,st.progress+dt/2.7);if(st.progress>=1){st.running=false;st.receipt=true;ui.flash('Receipt sealed and settled');return false}return true});
+}
+function mfSetBudget(key){return(st,ui)=>{if(st.running){ui.flash('Budget is locked during execution');return}st.budget=key;ui.render()}}
+const mfUi=mountFigure({
+  fig:'01',turn:'full',title:'Mellmon capability console',hint:'load a capability, set its limit, then run it',
+  size:[mfW+29,mfD+16,mfH+18],center:[mfW/2,mfD/2],palette:'blush',
+  state:{chip:false,budget:'standard',progress:0,running:false,receipt:false},
+  scene:mfScene,
+  readout:st=>st.running?'executing / '+Math.round(st.progress*100)+'%':st.receipt?'receipt settled':st.chip?'capability installed':'awaiting capability',
+  stats:st=>[
+    {label:'Authority',value:st.chip?'bounded':'none'},
+    {label:'Cost ceiling',value:mfBudget[st.budget]+' USDC',small:true},
+    {label:'Receipt',value:st.receipt?'sealed':'open',small:true}
+  ],
+  buttonsLabel:'Execution',
+  buttons:[
+    {label:'Load / remove capability',onClick:mfToggleChip},
+    {label:'Set budget',choices:st=>Object.keys(mfBudget).map(k=>({label:k+' / '+mfBudget[k]+' USDC',current:st.budget===k,onClick:mfSetBudget(k)}))},
+    {label:'Authorize execution',onClick:mfRun},
+    {label:'Clear receipt',onClick:(st,ui)=>{if(st.running){ui.flash('Execution is still running');return}st.receipt=false;st.progress=0;ui.render()}}
+  ],
+  acts:{chip:mfToggleChip,run:mfRun},
+  params:(st,q)=>{if(q.get('chip')==='1')st.chip=true;if(mfBudget[q.get('budget')])st.budget=q.get('budget');if(q.get('done')==='1'){st.chip=true;st.progress=1;st.receipt=true}}
+});
+xrMount(()=>mfUi,st=>st.running?'The policy drum closes the relay while the bounded installation is valid. The execution board records the selected revision, input, output and cost.':st.receipt?'The receipt roll records the completed execution. Three settlement rails route the approved value and the temporary authority can now expire.':'See-through reveals the policy drum, capability cards, execution relay, budget governor, receipt printer and settlement rails.');
+</script></body></html>

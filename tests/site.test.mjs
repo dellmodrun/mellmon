@@ -20,8 +20,8 @@ test("every modeled execution stage maps to a real program symbol", () => {
     assert.ok(symbol && program.includes(symbol), symbol ?? button);
     assert.equal([...button.matchAll(/data-stage-index=/g)].length, 1);
   }
-  assert.match(html, /id="mellmonBackplane"/);
-  assert.match(html, /assets\/hairline-kernel\.js/);
+  assert.match(html, /assets\/mellmon-colorfigure\.html/);
+  assert.doesNotMatch(html, /id="mellmonBackplane"/);
 });
 
 test("source browser embeds the checked-in program exactly", () => {
