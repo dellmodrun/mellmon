@@ -1022,3 +1022,82 @@ body:before{background:radial-gradient(circle,rgba(9,92,255,.09),rgba(74,0,255,.
 .dev-summary span:nth-child(even):after{background:#00d7ed}
 .core-meter i{background:linear-gradient(90deg,#ff7426,#ff0878 48%,#4a00ff 72%,#00d7ed)}
 .figure-readout strong{background:linear-gradient(90deg,#ff0878,#00d7ed);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Complete Mellmon brand treatment */
+:root{
+  --bg:#030305;
+  --glass:#09090e;
+  --glass-strong:#060609;
+  --edge:rgba(0,215,237,.2);
+  --edge-soft:rgba(255,255,255,.105);
+  --text:#f7f7fa;
+  --muted:#9a9aa8;
+  --dim:#606070;
+  --lime:#ff0878;
+  --aqua:#00d7ed;
+  --amber:#ff7426;
+}
+body{
+  color:#f7f7fa;
+  background:
+    radial-gradient(ellipse at 8% 3%,rgba(255,8,120,.14),transparent 31%),
+    radial-gradient(ellipse at 94% 18%,rgba(0,215,237,.12),transparent 30%),
+    radial-gradient(ellipse at 52% 79%,rgba(74,0,255,.105),transparent 38%),
+    #030305;
+}
+body:before{background:linear-gradient(115deg,rgba(255,8,120,.018),transparent 32%,transparent 68%,rgba(0,215,237,.02))}
+::selection{color:#fff;background:#4a00ff}
+.site-header{border-color:rgba(255,255,255,.12);background:rgba(3,3,5,.96)}
+.brand{color:#fff}.brand:after{color:#676779}
+.contract-slot,.social-link{border-color:#292936;background:#07070b}
+.contract-slot span{color:#ff0878}.contract-slot code{color:#e8e8ee}.social-link{color:#f7f7fa}
+.runtime-board,.runtime-hero .dev-note,.explorer,.workspace,.notes{
+  border-color:rgba(255,255,255,.13);
+  background:linear-gradient(145deg,rgba(12,12,18,.97),rgba(4,4,7,.98));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 22px 70px rgba(0,0,0,.32);
+}
+.runtime-board{border-color:rgba(0,215,237,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 0 1px rgba(255,8,120,.05),0 24px 80px rgba(0,0,0,.36)}
+.board-topline,.board-telemetry,.repo-meta,.toolbar,.work-foot{color:#757585;border-color:#242430;background:#07070b}
+.board-topline b,.board-telemetry span,.repo-foot,.work-foot{color:#6e6e7c}
+.board-telemetry b,#loadState{color:#00d7ed}
+.runtime-hero .dev-note h1,.runtime-hero .dev-note>.hero-lead,.notes .lead,.notes h2,#currentPath{color:#f8f8fb}
+.dev-note-meta,.dev-note-copy,.dev-note-footer{border-color:#292936}
+.dev-note-meta{color:#777786}.dev-note-meta span:first-child{color:#ff0878}
+.runtime-hero .eyebrow{color:#858594}.runtime-hero .eyebrow span{color:#00d7ed}
+.dev-note-copy p,.notes p,.notes li{color:#9d9daa}.dev-note-copy p:first-child{color:#c9c9d1}
+.dev-note-footer a{color:#f1f1f5}.dev-note-footer a:hover,.dev-note-footer b{color:#ff0878}
+.dev-summary{border-color:#292936}.dev-summary span{border-color:#292936}.dev-summary i{color:#686878}.dev-summary b{color:#f5f5f8}.dev-summary em{color:#878795}
+.hairline-wrap{border-color:rgba(0,215,237,.22);background:radial-gradient(circle at 50% 47%,rgba(74,0,255,.115),transparent 37%),#040407;box-shadow:inset 0 0 55px rgba(0,0,0,.45),0 0 30px rgba(0,215,237,.035)}
+.hairline-stage{
+  --hairline-plate:#06060a;
+  --hairline-hi:#ff0878;
+  --hairline-edge:#00d7ed;
+  --hairline-mid:#095cff;
+  --hairline-lo:#4a00ff;
+  --hairline-stroke:1.42;
+}
+.hairline-stage svg{opacity:1;filter:drop-shadow(0 0 3px rgba(0,215,237,.34)) drop-shadow(0 0 9px rgba(255,8,120,.12))}
+.figure-meta,.figure-readout{color:#767686;border-color:#292936}.figure-meta b{color:#00d7ed}
+.backplane-grid{opacity:.34;background-image:linear-gradient(rgba(0,215,237,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(255,8,120,.075) 1px,transparent 1px)}
+.backplane-index{color:#535365}.backplane-nodes{border-color:#292936;background:#050508}
+.source-node{color:#777786;border-color:#292936}.source-node b{color:#d5d5dd}.source-node em{color:#777786}
+.source-node:hover,.source-node:focus-visible,.source-node.active{color:#b5b5c2;background:linear-gradient(90deg,rgba(255,8,120,.105),rgba(74,0,255,.07))}
+.source-node:hover b,.source-node:focus-visible b,.source-node.active b{color:#fff}.source-node.active em{color:#ff0878}
+.backplane-spec{color:#666676;border-color:#292936}.backplane-spec span{border-color:#292936}.backplane-spec b{color:#00d7ed}
+.repo-head,.repo-meta,.repo-foot,.work-head,.toolbar,.source-summary,.work-foot{border-color:#292936}
+.repo-head small,.repo-actions em,.repo-foot{color:#777786}.repo-head h1{color:#fff}
+.repo-actions button,.work-actions button{color:#f5f5f8;border-color:rgba(255,8,120,.3);background:rgba(255,8,120,.075)}
+.repo-actions button:hover,.work-actions button:hover{border-color:#00d7ed;background:rgba(0,215,237,.085)}
+.repo-meta{color:#aaaab5}.repo-meta span:last-child{color:#6d6d7b}
+.tree-row{color:#a5a5b0;border-color:#20202a}.tree-row:hover{color:#fff;background:#101017}.tree-row.active,.tree-row.mapped{color:#fff;background:linear-gradient(90deg,rgba(255,8,120,.13),rgba(74,0,255,.06));box-shadow:inset 3px 0 0 #ff0878}.tree-row.active .file-icon{color:#00d7ed}
+.work-head{background:linear-gradient(90deg,rgba(255,8,120,.035),transparent 45%,rgba(0,215,237,.03))}
+.lights{color:#777786}.toolbar span:first-child{color:#00d7ed}.toolbar span:nth-child(2){color:#9494a0}
+.source-summary{color:#a0a0ac;background:linear-gradient(90deg,rgba(74,0,255,.055),rgba(0,215,237,.025))}.source-summary b{color:#ff0878}
+.code-scroll{background-color:#050508;background-image:linear-gradient(90deg,rgba(0,215,237,.025) 1px,transparent 1px)}
+#codeView{color:#c9c9d1}.num{color:#5e5e6d;border-color:#252530}.comment{color:#6f7f82}.string{color:#00d7ed}.keyword{color:#ff0878}.number{color:#ff7426}.type{color:#8f7cff}.punct{color:#7f7f8d}
+.code-line.symbol-focus{background:linear-gradient(90deg,rgba(255,8,120,.13),rgba(74,0,255,.05));box-shadow:inset 3px 0 0 #ff0878}.code-line.symbol-focus .num{color:#00d7ed}
+.notes{background:linear-gradient(145deg,rgba(12,12,18,.98),rgba(4,4,7,.99))}
+.label{color:#00d7ed}.label:before,.label span{color:#ff0878}.label:after{background:#292936}.notes h3{color:#d9d9e0}
+.notes .plain{color:#f4f4f8;border-color:rgba(255,8,120,.25);border-left-color:#ff0878;background:linear-gradient(90deg,rgba(255,8,120,.075),rgba(74,0,255,.035))}
+.tags span{color:#b5b5bf;border-color:#292936;background:#09090e}.notes .signature{color:#747482}
+.toast{color:#fff;border-color:rgba(0,215,237,.4);background:#09090e}
