@@ -34,9 +34,10 @@ test("source browser embeds the checked-in program exactly", () => {
   }
 });
 
-test("public page contains no prior chain or signature claims", () => {
+test("public page contains the current Mellmon chain and contract data", () => {
   assert.doesNotMatch(html, /Robinhood|EIP.712|ERC.1271|EVM|\.sol\b/i);
-  assert.match(html, /<code title="Token contract address to be announced">TBA<\/code>/);
+  assert.match(html, /<code title="769ttDjgb1qgdqcuxBLh3Jt8owNNdmg2muVvMVDRpump">769ttDjgb1qgdqcuxBLh3Jt8owNNdmg2muVvMVDRpump<\/code>/);
+  assert.match(html, /<em>LIVE<\/em>/);
   assert.doesNotMatch(html, /G4Nt1oUvpDGrDEK2rkTDbLRpMuGUuVnGq5cJgtRJpump/);
   assert.doesNotMatch(html, /F8XJnif9YTTV7fxZzGsp9KZdUkaC6n2cjArejj8Ypump/);
   assert.match(html, /Solana/);
