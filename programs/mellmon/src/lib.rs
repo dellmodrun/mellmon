@@ -5,7 +5,7 @@ use anchor_spl::token_interface::{self, Mint, TokenAccount, TokenInterface, Tran
 declare_id!("E7XwWNsXYWn81mVEGNwVfaHBynjZBcGYZ8ZwnfSzYgRB");
 
 #[program]
-pub mod manesso {
+pub mod mellmon {
     use super::*;
 
     pub fn create_chip(ctx: Context<CreateChip>, chip_id: [u8; 32]) -> Result<()> {
@@ -23,14 +23,14 @@ pub mod manesso {
         artifact_digest: [u8; 32],
         manifest_digest: [u8; 32],
     ) -> Result<()> {
-        require!(number > 0, ManessoError::InvalidRevision);
+        require!(number > 0, MellmonError::InvalidRevision);
         require!(
             number == ctx.accounts.chip.latest_revision.checked_add(1)
-                .ok_or(ManessoError::ArithmeticOverflow)?,
-            ManessoError::InvalidRevision
+                .ok_or(MellmonError::ArithmeticOverflow)?,
+            MellmonError::InvalidRevision
         );
-        require!(artifact_digest != [0; 32], ManessoError::InvalidDigest);
-        require!(manifest_digest != [0; 32], ManessoError::InvalidDigest);
+        require!(artifact_digest != [0; 32], MellmonError::InvalidDigest);
+        require!(manifest_digest != [0; 32], MellmonError::InvalidDigest);
 
         let revision = &mut ctx.accounts.revision;
         revision.chip = ctx.accounts.chip.key();
@@ -49,7 +49,7 @@ pub mod manesso {
     }
 
     pub fn create_machine(ctx: Context<CreateMachine>, operator: Pubkey) -> Result<()> {
-        require!(operator != Pubkey::default(), ManessoError::InvalidOperator);
+        require!(operator != Pubkey::default(), MellmonError::InvalidOperator);
         let machine = &mut ctx.accounts.machine;
         machine.owner = ctx.accounts.owner.key();
         machine.operator = operator;
@@ -58,37 +58,37 @@ pub mod manesso {
     }
 
     pub fn set_operator(ctx: Context<SetOperator>, operator: Pubkey) -> Result<()> {
-        require!(operator != Pubkey::default(), ManessoError::InvalidOperator);
+        require!(operator != Pubkey::default(), MellmonError::InvalidOperator);
         ctx.accounts.machine.operator = operator;
         Ok(())
     }
 
     pub fn install_chip(ctx: Context<InstallChip>, args: InstallArgs) -> Result<()> {
         let now = Clock::get()?.unix_timestamp;
-        require!(!ctx.accounts.revision.revoked, ManessoError::RevisionRevoked);
-        require!(args.expires_at > now, ManessoError::InstallationExpired);
-        require!(args.max_cost > 0, ManessoError::InvalidBudget);
-        require!(args.window_limit >= args.max_cost, ManessoError::InvalidBudget);
-        require!(args.window_seconds > 0, ManessoError::InvalidBudget);
+        require!(!ctx.accounts.revision.revoked, MellmonError::RevisionRevoked);
+        require!(args.expires_at > now, MellmonError::InstallationExpired);
+        require!(args.max_cost > 0, MellmonError::InvalidBudget);
+        require!(args.window_limit >= args.max_cost, MellmonError::InvalidBudget);
+        require!(args.window_seconds > 0, MellmonError::InvalidBudget);
         require_keys_eq!(
             args.publisher,
             ctx.accounts.chip.publisher,
-            ManessoError::PublisherMismatch
+            MellmonError::PublisherMismatch
         );
         require!(
             args.publisher != args.executor
                 && args.publisher != args.protocol
                 && args.executor != args.protocol,
-            ManessoError::DuplicateRecipient
+            MellmonError::DuplicateRecipient
         );
         require!(
             u32::from(args.publisher_bps)
                 + u32::from(args.executor_bps)
                 + u32::from(args.protocol_bps)
                 == 10_000,
-            ManessoError::InvalidRoute
+            MellmonError::InvalidRoute
         );
-        require!(args.mint != Pubkey::default(), ManessoError::InvalidMint);
+        require!(args.mint != Pubkey::default(), MellmonError::InvalidMint);
 
         let installation = &mut ctx.accounts.installation;
         installation.machine = ctx.accounts.machine.key();
@@ -130,24 +130,24 @@ pub mod manesso {
     ) -> Result<()> {
         let now = Clock::get()?.unix_timestamp;
         let installation = &mut ctx.accounts.installation;
-        require!(installation.active, ManessoError::InstallationRevoked);
-        require!(!ctx.accounts.revision.revoked, ManessoError::RevisionRevoked);
-        require!(now < installation.expires_at, ManessoError::InstallationExpired);
-        require!(cost > 0 && cost <= installation.max_cost, ManessoError::CostExceedsLimit);
-        require!(invocation_id != [0; 32], ManessoError::InvalidDigest);
-        require!(input_digest != [0; 32], ManessoError::InvalidDigest);
-        require!(output_digest != [0; 32], ManessoError::InvalidDigest);
+        require!(installation.active, MellmonError::InstallationRevoked);
+        require!(!ctx.accounts.revision.revoked, MellmonError::RevisionRevoked);
+        require!(now < installation.expires_at, MellmonError::InstallationExpired);
+        require!(cost > 0 && cost <= installation.max_cost, MellmonError::CostExceedsLimit);
+        require!(invocation_id != [0; 32], MellmonError::InvalidDigest);
+        require!(input_digest != [0; 32], MellmonError::InvalidDigest);
+        require!(output_digest != [0; 32], MellmonError::InvalidDigest);
 
         if now >= installation.window_start
             .checked_add(installation.window_seconds)
-            .ok_or(ManessoError::ArithmeticOverflow)?
+            .ok_or(MellmonError::ArithmeticOverflow)?
         {
             installation.window_start = now;
             installation.window_spent = 0;
         }
         let next_spent = installation.window_spent.checked_add(cost)
-            .ok_or(ManessoError::ArithmeticOverflow)?;
-        require!(next_spent <= installation.window_limit, ManessoError::WindowLimitExceeded);
+            .ok_or(MellmonError::ArithmeticOverflow)?;
+        require!(next_spent <= installation.window_limit, MellmonError::WindowLimitExceeded);
         installation.window_spent = next_spent;
 
         let receipt = &mut ctx.accounts.receipt;
@@ -165,10 +165,10 @@ pub mod manesso {
     }
 
     pub fn settle(ctx: Context<Settle>) -> Result<()> {
-        require!(!ctx.accounts.receipt.settled, ManessoError::AlreadySettled);
+        require!(!ctx.accounts.receipt.settled, MellmonError::AlreadySettled);
         require!(
             ctx.accounts.receipt.route_digest == ctx.accounts.installation.route_digest,
-            ManessoError::RouteMismatch
+            MellmonError::RouteMismatch
         );
         let installation = &ctx.accounts.installation;
         let cost = ctx.accounts.receipt.cost;
@@ -176,10 +176,10 @@ pub mod manesso {
         let executor_amount = share(cost, installation.executor_bps)?;
         let protocol_amount = cost.checked_sub(publisher_amount)
             .and_then(|remaining| remaining.checked_sub(executor_amount))
-            .ok_or(ManessoError::ArithmeticOverflow)?;
+            .ok_or(MellmonError::ArithmeticOverflow)?;
         require!(
             ctx.accounts.vault.amount >= cost,
-            ManessoError::InsufficientFunds
+            MellmonError::InsufficientFunds
         );
 
         let bump = [ctx.accounts.machine.bump];
@@ -249,14 +249,14 @@ fn transfer_to<'info>(
 fn share(cost: u64, basis_points: u16) -> Result<u64> {
     let amount = u128::from(cost)
         .checked_mul(u128::from(basis_points))
-        .ok_or(ManessoError::ArithmeticOverflow)?
+        .ok_or(MellmonError::ArithmeticOverflow)?
         / 10_000;
-    u64::try_from(amount).map_err(|_| error!(ManessoError::ArithmeticOverflow))
+    u64::try_from(amount).map_err(|_| error!(MellmonError::ArithmeticOverflow))
 }
 
 fn route_digest(args: &InstallArgs) -> [u8; 32] {
     hashv(&[
-        b"manesso-route-v1",
+        b"mellmon-route-v1",
         args.mint.as_ref(),
         args.publisher.as_ref(),
         args.executor.as_ref(),
@@ -538,7 +538,7 @@ impl Receipt {
 }
 
 #[error_code]
-pub enum ManessoError {
+pub enum MellmonError {
     #[msg("Revision number must be sequential")]
     InvalidRevision,
     #[msg("Digest must not be zero")]

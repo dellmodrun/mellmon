@@ -1,4 +1,4 @@
-# Manesso capability backplane
+# Mellmon capability backplane
 
 Hero-scale object: a serviceable six-slot capability controller. Selecting a cartridge lifts it from its socket, opens its retaining arms, and energises the physical bus to the central execution core.
 

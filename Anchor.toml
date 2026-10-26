@@ -3,7 +3,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-manesso = "E7XwWNsXYWn81mVEGNwVfaHBynjZBcGYZ8ZwnfSzYgRB"
+mellmon = "E7XwWNsXYWn81mVEGNwVfaHBynjZBcGYZ8ZwnfSzYgRB"
 
 [provider]
 cluster = "Localnet"

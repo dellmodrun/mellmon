@@ -1,8 +1,8 @@
-const objects = window.MANESSO_SOURCE_OBJECTS;
-const tree = window.MANESSO_SOURCE_TREE;
+const objects = window.MELLMON_SOURCE_OBJECTS;
+const tree = window.MELLMON_SOURCE_TREE;
 
 const fileTree = document.querySelector("#fileTree");
-let currentPath = "programs/manesso/src/lib.rs";
+let currentPath = "programs/mellmon/src/lib.rs";
 
 function fileKind(path) {
   const extension = path.split(".").pop().toUpperCase();
@@ -118,13 +118,13 @@ document.querySelectorAll("[data-open]").forEach((button) => {
 
 const stageNames = ["MANIFEST", "REGISTRY", "POLICY", "RECEIPT", "SETTLEMENT", "GUARD"];
 const stageNodes = [...document.querySelectorAll(".source-node")];
-const backplaneStage = document.querySelector("#manessoBackplane");
+const backplaneStage = document.querySelector("#mellmonBackplane");
 const backplaneRead = document.querySelector("#backplaneRead");
 const backplaneCounter = document.querySelector("#backplaneCounter");
 let backplaneHandle = null;
 
 if (backplaneStage) {
-  backplaneStage.addEventListener("manesso-stage", (event) => {
+  backplaneStage.addEventListener("mellmon-stage", (event) => {
     const index = event.detail;
     stageNodes.forEach((node, i) => node.classList.toggle("active", i === index));
     backplaneRead.textContent = index < 0 ? "SYSTEM READY" : stageNames[index];

@@ -1,5 +1,5 @@
 /**
- * Manesso capability controller: a six-bay serviceable execution backplane.
+ * Mellmon capability controller: a six-bay serviceable execution backplane.
  * A selected cartridge releases from its socket, lifts, and energises its bus.
  */
 const {
@@ -83,7 +83,7 @@ function mount({ stage, svg, read }, value) {
   const loop=register(stage,(_dt,now)=>{let moving=false;carts.forEach(c=>{draw(c,tval(c.zt,now));if(!tdone(c.zt,now))moving=true;});return moving;});bag.add(loop.unregister);
   function select(index){
     if(index===active)return;active=index;const now=performance.now();carts.forEach(c=>{const on=c.sourceIndex===index;tset(c.zt,on?lift:0,now,on?0:Math.abs(c.sourceIndex-index)*18);c.body.sil.classList.toggle("hi",on);c.cap.sil.classList.toggle("hi",on);c.contacts.forEach(d=>d.classList.toggle("m",!on));});
-    [...bus.children].forEach((p,i)=>p.classList.toggle("hi",index>=0&&Math.floor(i/2)===index&&i%2===0));arms.forEach(a=>a.arm.classList.toggle("hi",a.index===index));read.textContent=index<0?"system ready":MODULES[index].name+" / source linked";stage.dispatchEvent(new CustomEvent("manesso-stage",{detail:index}));loop.wake();
+    [...bus.children].forEach((p,i)=>p.classList.toggle("hi",index>=0&&Math.floor(i/2)===index&&i%2===0));arms.forEach(a=>a.arm.classList.toggle("hi",a.index===index));read.textContent=index<0?"system ready":MODULES[index].name+" / source linked";stage.dispatchEvent(new CustomEvent("mellmon-stage",{detail:index}));loop.wake();
   }
   carts.forEach(c=>draw(c,0));bag.add(pointer(stage,{move:p=>select(hit(p)),leave:()=>select(-1)}));bag.add(()=>svg.replaceChildren());
   return {set:v=>{lift=v;if(active>=0){tset(carts.find(c=>c.sourceIndex===active).zt,lift,performance.now(),0);loop.wake();}},select,destroy:bag.dispose};
