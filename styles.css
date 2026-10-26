@@ -1088,6 +1088,120 @@ body:before{background:linear-gradient(115deg,rgba(255,8,120,.018),transparent 3
 .repo-head small,.repo-actions em,.repo-foot{color:#777786}.repo-head h1{color:#fff}
 .repo-actions button,.work-actions button{color:#f5f5f8;border-color:rgba(255,8,120,.3);background:rgba(255,8,120,.075)}
 .repo-actions button:hover,.work-actions button:hover{border-color:#00d7ed;background:rgba(0,215,237,.085)}
+
+/* Refined masthead identity and contract module */
+.site-header{grid-template-columns:minmax(260px,1fr) auto minmax(120px,1fr)}
+.logo-crop,.mark{
+  position:relative;
+  display:block;
+  overflow:hidden;
+  border:0;
+  border-radius:0;
+  background:transparent!important;
+  box-shadow:none;
+}
+.logo-crop{width:64px;height:32px}
+.logo-crop img,.mark img{
+  position:absolute;
+  top:50%;
+  left:50%;
+  display:block;
+  max-width:none;
+  object-fit:contain;
+  mix-blend-mode:screen;
+  transform:translate(-50%,-50%);
+}
+.logo-crop img{width:112px;height:112px}
+.brand{gap:12px}
+.mark{width:62px;height:34px}
+.mark img{width:112px;height:112px}
+.repo-head{grid-template-columns:62px minmax(0,1fr);gap:12px}
+
+.contract-slot{
+  position:relative;
+  display:grid;
+  grid-template-columns:64px minmax(170px,1fr) 62px;
+  width:min(390px,38vw);
+  min-width:318px;
+  height:36px;
+  padding:0;
+  gap:0;
+  overflow:hidden;
+  border:1px solid #30303c;
+  background:#050509;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 8px 28px rgba(0,0,0,.2);
+}
+.contract-slot:before{
+  content:"";
+  position:absolute;
+  z-index:2;
+  top:-1px;
+  right:18%;
+  left:18%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,#ff0878 38%,#00d7ed 62%,transparent);
+}
+.contract-slot span{
+  display:flex;
+  height:100%;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:0;
+  border:0;
+  border-right:1px solid #292936;
+  color:#fff;
+  letter-spacing:.08em;
+}
+.contract-slot span small{color:#676779;font:600 5px/1 var(--mono);letter-spacing:.14em}
+.contract-slot span b{color:#ff0878;font:800 8px/1 var(--mono);letter-spacing:.1em}
+.contract-slot code{
+  display:block;
+  min-width:0;
+  padding:0 14px;
+  overflow:hidden;
+  color:#f3f3f7;
+  font:700 9px/1 var(--mono);
+  letter-spacing:.055em;
+  text-align:center;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.contract-slot em{
+  display:grid;
+  height:100%;
+  place-items:center;
+  color:#6d6d7d;
+  border-left:1px solid #292936;
+  background:#08080d;
+  font:600 5px/1 var(--mono);
+  font-style:normal;
+  letter-spacing:.12em;
+}
+
+@media(max-width:820px){
+  .site-header{grid-template-columns:minmax(150px,1fr) auto minmax(72px,1fr)}
+  .contract-slot{width:300px;min-width:300px;grid-template-columns:56px minmax(140px,1fr) 58px}
+}
+@media(max-width:600px){
+  .logo-crop{width:48px;height:26px}
+  .logo-crop img{width:88px;height:88px}
+  .brand{gap:6px}
+  .contract-slot{
+    position:static!important;
+    width:min(218px,calc(100vw - 132px));
+    min-width:0;
+    max-width:none;
+    height:30px;
+    margin-left:auto;
+    grid-template-columns:48px minmax(0,1fr);
+    transform:none!important;
+  }
+  .contract-slot span{gap:4px}
+  .contract-slot span small{display:none}
+  .contract-slot code{max-width:none;padding:0 8px;font-size:7px}
+  .contract-slot em{display:none}
+}
 .repo-meta{color:#aaaab5}.repo-meta span:last-child{color:#6d6d7b}
 .tree-row{color:#a5a5b0;border-color:#20202a}.tree-row:hover{color:#fff;background:#101017}.tree-row.active,.tree-row.mapped{color:#fff;background:linear-gradient(90deg,rgba(255,8,120,.13),rgba(74,0,255,.06));box-shadow:inset 3px 0 0 #ff0878}.tree-row.active .file-icon{color:#00d7ed}
 .work-head{background:linear-gradient(90deg,rgba(255,8,120,.035),transparent 45%,rgba(0,215,237,.03))}
