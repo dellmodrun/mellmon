@@ -3,10 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Source mapped website for the mellmon Solana program",
+  "description": "Mellmon outcome-native agent company protocol and formation interface",
   "scripts": {
-    "source:sync": "node scripts/build-source-data.mjs",
     "test": "node --test tests/site.test.mjs",
-    "build": "npm run source:sync && npm test"
+    "build": "npm test"
   }
 }
