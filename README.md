@@ -1,69 +1,86 @@
 # Mellmon
 
-Mellmon is a protocol concept for outcome-native agent companies on Solana.
+Mellmon is an Anchor program on Solana for bounded agent capabilities. A publisher registers a Chip and immutable revisions. A Machine owner installs one revision with an expiry, SPL token mint, per invocation cost ceiling, rolling budget and three recipient settlement route. An authorized operator records a receipt for completed offchain work. A receipt can be settled exactly once from a Machine controlled token vault.
 
-A founder defines one measurable outcome, an isolated treasury, a deadline and an acceptance policy. Mellmon forms a temporary company around that result, gives each agent or human contributor only the capability and budget required for its task, records delivery through receipts, settles approved work and expires the company's authority when the outcome is complete.
+The repository also contains the public website. Its board and code browser are generated from and mapped to the real Solana program source. The website is an architecture viewer, not a live execution monitor.
 
-## Product model
+## Current status
 
-| Object | Purpose |
-| --- | --- |
-| Outcome | Definition of done, acceptance conditions and deadline |
-| Company | Temporary coordination state formed for one Outcome |
-| Machine | Owner-controlled runtime that plans and authorizes execution |
-| Chip | Versioned capability installed for a specific task |
-| Receipt | Record of operator, cost, policy and reported delivery |
-| Treasury | Isolated capital with spending limits and settlement routes |
+The Rust program compiles and its unit tests pass in GitHub Actions. There is no public program deployment or token address. The website therefore says NOT DEPLOYED. The program is not audited. Do not fund a vault or rely on this code to protect production assets without independent review and end to end testing.
 
-The intended lifecycle is:
+The current program records operator reported offchain results. It does not execute private code, restrict a local process, verify computation or prove that a reported output is correct. An authorized operator is a trust assumption. Artifact and manifest digests are pinned onchain, but the party installing a Chip must inspect and independently hash the offchain bytes.
 
-1. Lock an Outcome and its acceptance policy.
-2. Form a Company with a bounded Treasury.
-3. Decompose the Outcome into an execution graph.
-4. Install the required Chips on a Machine.
-5. Route subjective or high-impact decisions to human reviewers.
-6. Record verified contributions as Receipts.
-7. Settle approved work, return unused capital and expire temporary authority.
+## Program ID
 
-## Current implementation
+`E7XwWNsXYWn81mVEGNwVfaHBynjZBcGYZ8ZwnfSzYgRB`
 
-The repository contains:
+This is a generated program address, not evidence of deployment. The corresponding local keypair is ignored under `keys/` and must never be committed or shared. A public deployment should use a carefully managed deploy authority. Generate a separate local payer with `solana-keygen new -o keys/deployer.json` before using Anchor commands that sign transactions.
 
-- A production-style static formation interface in index.html, styles.css and app.js.
-- An interactive local formation planner. It moves no funds and makes no wallet request.
-- An Anchor program baseline in programs/mellmon/src/lib.rs for versioned Chips, bounded installations, operator-reported Receipts and SPL Token settlement.
+## Account model
 
-The current Anchor program implements the lower-level Machine, Chip, installation and Receipt primitives. Outcome, Company, dependency graph, acceptance and dissolution accounts described by the product interface are the next protocol layer; they are not yet deployed.
+| Account | PDA seeds | Purpose |
+| --- | --- | --- |
+| Chip | `chip`, publisher, 32 byte Chip ID | Stable publisher owned identity and latest revision |
+| Revision | `revision`, Chip PDA, little endian revision number | Artifact and manifest digests, revocation flag |
+| Machine | `machine`, owner | Owner and current operator authority |
+| Installation | `install`, Machine PDA, Chip PDA, little endian installation ID | Pinned revision, expiry, mint, budgets and payment route |
+| Receipt | `receipt`, Installation PDA, 32 byte invocation ID | Digests, reporter, cost and one time settlement state |
 
-There is no public mainnet deployment, verified program address or token contract address. The program has not been audited. Do not use it to protect production assets without independent review, SBF testing and end-to-end integration tests.
+An account already existing at the same PDA prevents the same identity or invocation from being created again.
 
-## Existing onchain baseline
+## Instruction flow
 
-The current program supports:
+1. `create_chip` creates a publisher owned Chip.
+2. `publish_revision` creates the next revision with nonzero artifact and manifest digests. `revoke_revision` marks a compromised revision.
+3. `create_machine` sets an owner and operator. Only the owner may change the operator.
+4. `install_chip` pins a live revision and owner selected limits. Only the owner may revoke the installation.
+5. `record_receipt` requires the current operator signature. It rejects revoked revisions and installations, expiry, zero or excessive cost, exceeded rolling budget and reused invocation IDs.
+6. `settle` checks the committed route, mint and token account authorities, transfers the exact receipt cost with SPL Token `transfer_checked`, and marks the receipt settled. Any caller can pay the transaction fee; only the Machine PDA can authorize spending from its vault.
 
-- Publisher-owned Chip identities and immutable revisions.
-- Owner-controlled Machines and operators.
-- Installations with expiry, per-invocation ceilings and rolling budgets.
-- Artifact and manifest digest commitments.
-- Unique Receipts for operator-reported offchain work.
-- One-time SPL Token settlement across a committed three-recipient route.
+The owner must fund a token account whose authority is the Machine PDA before settlement. Recipient token accounts must use the installation's publisher, executor and protocol owners and selected mint. Settlement uses integer basis points. Publisher and executor shares round down; the remaining units go to the protocol account.
 
-The program does not yet verify the correctness of offchain computation. An authorized operator remains a trust assumption.
+## Source files
 
-## Development
+- `programs/mellmon/src/lib.rs`: all program instructions, account constraints, state layouts, errors and unit tests.
+- `programs/mellmon/Cargo.toml`: program dependencies.
+- `Cargo.toml`: Rust workspace.
+- `Anchor.toml`: program ID and local validator configuration.
+- `.github/workflows/solana.yml`: Linux compilation and unit tests.
+- `scripts/build-source-data.mjs`: reads real repository files into the website code browser.
+- `tests/site.test.mjs`: checks that every board Chip points to a real program symbol and that old chain claims do not reappear.
+- `index.html`, `styles.css`, `app.js`: public site and source mapped board.
+- `package.json`: website build and test commands.
+- `serve.py`: optional local static server.
+- `source-data.js`: generated browser data. Do not hand edit it.
+- `CNAME`: custom domain configuration.
 
-Run the website checks:
+## Build and test
 
-    npm test
+Use Rust, Solana CLI and Anchor CLI compatible with Anchor 1.2.0. On Windows, run the Solana tooling in WSL or use the GitHub Actions workflow in this repository.
 
-Serve the static interface locally:
+```sh
+cargo check --workspace --all-targets
+cargo test --workspace --lib
+anchor build
+npm run source:sync
+npm test
+```
 
-    python -m http.server 4173
+`cargo check` and `cargo test` run in CI. The site can be served as static files; no frontend framework is required. `npm run source:sync` must run after changing a displayed source file.
 
-Run the Rust checks with a compatible Rust, Solana and Anchor toolchain:
+`anchor build` and local-validator integration tests are not currently covered by CI. Do not treat host compilation alone as an SBF deployment test.
 
-    cargo check --workspace --all-targets
-    cargo test --workspace --lib
-    anchor build
+## Security boundaries
 
-The site has no frontend framework or runtime dependency.
+- The owner controls installation and operator changes. The operator can record a cost up to the owner's limits, so operator compromise can create false receipts and charge the Machine vault.
+- The program checks account relationships and token account owners before settlement. It cannot determine whether an offchain result is true.
+- Revoking a revision prevents new receipts for an installation using it. An already recorded receipt can still be settled.
+- Every receipt has a unique PDA and a settled flag. Solana transaction atomicity means failed transfers do not persist a partially settled receipt.
+- The rolling budget resets when the configured time window has elapsed. It limits operator reported receipt cost, not every possible external expense of an offchain process.
+- A private sandbox, artifact verification service and an independent result challenge mechanism are future work, not hidden features of the current program.
+
+## Website
+
+The website reads source contents from `source-data.js`, generated from files listed in `scripts/build-source-data.mjs`. Clicking a board component opens the Rust source and scrolls to the relevant instruction or account. The board sequence is an architecture trace, not live telemetry.
+
+The CA field remains NOT DEPLOYED until a real token address is supplied. The program ID above is not a token CA.

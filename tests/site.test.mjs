@@ -3,34 +3,41 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import vm from "node:vm";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (name) => fs.readFileSync(path.join(root, name), "utf8");
 const html = read("index.html");
-const css = read("styles.css");
-const app = read("app.js");
+const program = read("programs/mellmon/src/lib.rs");
 
-test("public page presents the complete outcome-company lifecycle", () => {
-  for (const concept of ["OUTCOME", "COMPANY", "MACHINE", "CHIP", "RECEIPT", "TREASURY", "DISSOLVE"]) {
-    assert.match(html, new RegExp(concept, "i"), concept);
+test("every modeled execution stage maps to a real program symbol", () => {
+  const buttons = [...html.matchAll(/<button class="source-node[^>]+>/g)].map((match) => match[0]);
+  assert.equal(buttons.length, 6);
+  for (const button of buttons) {
+    const source = button.match(/data-open="([^"]+)"/)?.[1];
+    const symbol = button.match(/data-symbol="([^"]+)"/)?.[1];
+    assert.equal(source, "programs/mellmon/src/lib.rs");
+    assert.ok(symbol && program.includes(symbol), symbol ?? button);
+    assert.equal([...button.matchAll(/data-stage-index=/g)].length, 1);
   }
-  assert.match(html, /Outcome-native agent companies/);
-  assert.match(html, /SOLANA/i);
+  assert.match(html, /id="mellmonBackplane"/);
+  assert.match(html, /assets\/hairline-kernel\.js/);
 });
 
-test("formation console is wired to a real local planning interaction", () => {
-  for (const id of ["formationForm", "outcomeInput", "budgetInput", "deadlineInput", "planNodes"]) {
-    assert.match(html, new RegExp(`id="${id}"`), id);
-    assert.match(app, new RegExp(`#${id}`), id);
+test("source browser embeds the checked-in program exactly", () => {
+  const sandbox = { window: {} };
+  vm.runInNewContext(read("source-data.js"), sandbox);
+  assert.equal(sandbox.window.MELLMON_SOURCE_OBJECTS["programs/mellmon/src/lib.rs"].content, program.replace(/\r\n/g, "\n"));
+  for (const file of Object.keys(sandbox.window.MELLMON_SOURCE_OBJECTS)) {
+    assert.ok(fs.existsSync(path.join(root, file)), file);
+    assert.ok(!file.startsWith("contracts/"), file);
   }
-  assert.match(app, /renderPlan\(\)/);
-  assert.match(css, /\.plan-node/);
 });
 
-test("old frontend identity and unsupported deployment claims are absent", () => {
-  assert.doesNotMatch(html, /backplane|hairline|lab note|source browser|why i'm building/i);
-  assert.doesNotMatch(html, /Robinhood|EIP.712|ERC.1271|EVM/i);
-  assert.doesNotMatch(html, /mainnet live|live mainnet/i);
-  assert.match(html, /CA: TBA/);
-  assert.doesNotMatch(html, /pump$/im);
+test("public page contains no prior chain or signature claims", () => {
+  assert.doesNotMatch(html, /Robinhood|EIP.712|ERC.1271|EVM|\.sol\b/i);
+  assert.match(html, /<code title="Token contract address to be announced">TBA<\/code>/);
+  assert.doesNotMatch(html, /G4Nt1oUvpDGrDEK2rkTDbLRpMuGUuVnGq5cJgtRJpump/);
+  assert.doesNotMatch(html, /F8XJnif9YTTV7fxZzGsp9KZdUkaC6n2cjArejj8Ypump/);
+  assert.match(html, /Solana/);
 });
